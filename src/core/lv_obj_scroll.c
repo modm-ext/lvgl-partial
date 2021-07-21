@@ -222,7 +222,9 @@ lv_coord_t lv_obj_get_scroll_right(lv_obj_t * obj)
     lv_coord_t pad_left = lv_obj_get_style_pad_left(obj, LV_PART_MAIN);
     lv_coord_t border_width = lv_obj_get_style_border_width(obj, LV_PART_MAIN);
 
-    child_res -= (obj->coords.x2 - pad_right - border_width);
+    if(child_res != LV_COORD_MIN) {
+        child_res -= (obj->coords.x2 - pad_right - border_width);
+    }
 
     lv_coord_t self_w;
     self_w = lv_obj_get_self_width(obj);
@@ -280,21 +282,22 @@ void lv_obj_scroll_by(lv_obj_t * obj, lv_coord_t x, lv_coord_t y, lv_anim_enable
             lv_anim_set_values(&a, -sy, -sy + y);
             lv_anim_set_exec_cb(&a,  scroll_y_anim);
             lv_anim_set_path_cb(&a, lv_anim_path_ease_out);
-            lv_anim_start(&a);
 
             lv_res_t res;
             res = lv_event_send(obj, LV_EVENT_SCROLL_BEGIN, &a);
             if(res != LV_RES_OK) return;
-
+            lv_anim_start(&a);
         }
     } else {
         /*Remove pending animations*/
-        lv_res_t res;
-        res = lv_event_send(obj, LV_EVENT_SCROLL_END, NULL);
-        if(res != LV_RES_OK) return;
-        lv_anim_del(obj, scroll_y_anim);
-        lv_anim_del(obj, scroll_x_anim);
+        bool y_del = lv_anim_del(obj, scroll_y_anim);
+        bool x_del = lv_anim_del(obj, scroll_x_anim);
         scroll_by_raw(obj, x, y);
+        if(y_del || x_del) {
+            lv_res_t res;
+            res = lv_event_send(obj, LV_EVENT_SCROLL_END, NULL);
+            if(res != LV_RES_OK) return;
+        }
     }
 }
 
@@ -700,11 +703,13 @@ static void scroll_area_into_view(const lv_area_t * area, lv_obj_t * child, lv_p
     }
 
     /*Remove any pending scroll animations.*/
-    lv_res_t res;
-    res = lv_event_send(parent, LV_EVENT_SCROLL_END, NULL);
-    if(res != LV_RES_OK) return;
-    lv_anim_del(parent, scroll_x_anim);
-    lv_anim_del(parent, scroll_y_anim);
+    bool y_del = lv_anim_del(parent, scroll_y_anim);
+    bool x_del = lv_anim_del(parent, scroll_x_anim);
+    if(y_del || x_del) {
+        lv_res_t res;
+        res = lv_event_send(parent, LV_EVENT_SCROLL_END, NULL);
+        if(res != LV_RES_OK) return;
+    }
 
     if((scroll_dir & LV_DIR_LEFT) == 0 && x_scroll < 0) x_scroll = 0;
     if((scroll_dir & LV_DIR_RIGHT) == 0 && x_scroll > 0) x_scroll = 0;
