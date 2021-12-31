@@ -40,6 +40,7 @@ for pattern in source_paths:
             wfile.writelines(l.rstrip()+"\n" for l in rfile.readlines())
 
 
+subprocess.run("git apply lvgl-patch", shell=True)
 subprocess.run("git add lvgl.h LICENCE.txt src", shell=True)
 if subprocess.call("git diff-index --quiet HEAD --", shell=True):
     subprocess.run('git commit -m "Update LVGL to {}"'.format(tag), shell=True)
