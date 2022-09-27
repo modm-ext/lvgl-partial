@@ -1,35 +1,14 @@
-diff --git a/src/core/lv_indev.c b/src/core/lv_indev.c
-index 079aa94..628cdf7 100644
---- a/src/core/lv_indev.c
-+++ b/src/core/lv_indev.c
-@@ -410,7 +410,7 @@ static void indev_keypad_proc(lv_indev_t * i, lv_indev_data_t * data)
-
-     /*Key press happened*/
-     if(data->state == LV_INDEV_STATE_PRESSED && prev_state == LV_INDEV_STATE_RELEASED) {
--        LV_LOG_INFO("%d key is pressed", data->key);
-+        LV_LOG_INFO("%" PRIu32 " key is pressed", data->key);
-         i->proc.pr_timestamp = lv_tick_get();
-
-         /*Simulate a press on the object if ENTER was pressed*/
-@@ -494,7 +494,7 @@ static void indev_keypad_proc(lv_indev_t * i, lv_indev_data_t * data)
-     }
-     /*Release happened*/
-     else if(data->state == LV_INDEV_STATE_RELEASED && prev_state == LV_INDEV_STATE_PRESSED) {
--        LV_LOG_INFO("%d key is released", data->key);
-+        LV_LOG_INFO("%" PRIu32 " key is released", data->key);
-         /*The user might clear the key when it was released. Always release the pressed key*/
-         data->key = prev_key;
-         if(data->key == LV_KEY_ENTER) {
-@@ -743,10 +743,10 @@ static void indev_button_proc(lv_indev_t * i, lv_indev_data_t * data)
-     static lv_indev_state_t prev_state = LV_INDEV_STATE_RELEASED;
-     if(prev_state != data->state) {
-         if(data->state == LV_INDEV_STATE_PRESSED) {
--            LV_LOG_INFO("button %d is pressed (x:%d y:%d)", data->btn_id, x, y);
-+            LV_LOG_INFO("button %" PRIu32 " is pressed (x:%d y:%d)", data->btn_id, x, y);
-         }
-         else {
--            LV_LOG_INFO("button %d is released (x:%d y:%d)", data->btn_id, x, y);
-+            LV_LOG_INFO("button %" PRIu32 " is released (x:%d y:%d)", data->btn_id, x, y);
-         }
-     }
+diff --git a/src/widgets/lv_roller.c b/src/widgets/lv_roller.c
+index fd9b394..2067bb1 100644
+--- a/src/widgets/lv_roller.c
++++ b/src/widgets/lv_roller.c
+@@ -169,7 +169,7 @@ void lv_roller_set_selected(lv_obj_t * obj, uint16_t sel_opt, lv_anim_enable_t a
+             uint16_t act_opt = roller->sel_opt_id - current_page * real_option_cnt;
+             int32_t sel_opt_signed = sel_opt;
+             /*Huge jump? Probably from last to first or first to last option.*/
+-            if(LV_ABS((int16_t)act_opt - sel_opt) > real_option_cnt / 2) {
++            if((uint32_t)LV_ABS((int16_t)act_opt - sel_opt) > real_option_cnt / 2) {
+                 if(act_opt > sel_opt) sel_opt_signed += real_option_cnt;
+                 else sel_opt_signed -= real_option_cnt;
+             }
 
