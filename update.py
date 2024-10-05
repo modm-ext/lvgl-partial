@@ -11,6 +11,7 @@ source_paths = [
     "LICENCE.txt",
     "src/**/*",
     "lvgl.h",
+    "lv_version.h",
 ]
 
 with urllib.request.urlopen("https://api.github.com/repos/lvgl/lvgl/releases/latest") as response:
@@ -40,7 +41,11 @@ for pattern in source_paths:
             wfile.writelines(l.rstrip()+"\n" for l in rfile.readlines())
 
 
-subprocess.run("git apply lvgl-patch", shell=True)
-subprocess.run("git add lvgl.h LICENCE.txt src", shell=True)
+# print("Apply patch...")
+# if subprocess.call("git apply -v --ignore-whitespace lvgl.patch", shell=True):
+#     print("Patch failed to apply!...")
+#     exit(1)
+
+subprocess.run("git add lvgl.h lv_version.h LICENCE.txt src", shell=True)
 if subprocess.call("git diff-index --quiet HEAD --", shell=True):
     subprocess.run('git commit -m "Update LVGL to {}"'.format(tag), shell=True)
